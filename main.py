@@ -1,11 +1,13 @@
-import matplotlib.pyplot as plt
-import os
+import numpy as np
+import pandas as pd
+import tools.utils as galtools
+import yaml
+import tools.feature_learning as fl
+
 
 if __name__ == "__main__":
-
-    os.environ['HOME'] = 'C:/Users/thoma/marvin'
-    os.environ['SAS_BASE_DIR'] = os.path.join(os.getenv("HOME"), 'sas')
-    print("Ignore following __warnings__:")
-    plt.pause(0.1)
-    from data_pipeline.queries import query_single
-    query_single()
+    # galtools.save_images_to_pkl()
+    with open("config.yml", "r") as file:
+        file_name = yaml.safe_load(file)["directories"]["pickle_file_name"]
+    data = galtools.read_pickle(file_name)
+    print(len(data))

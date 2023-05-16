@@ -1,4 +1,10 @@
 .whl\torch-1.8.1+cu101-cp37-cp37m-win_amd64.whl
 .whl\torchvision-0.9.1+cu101-cp37-cp37m-win_amd64.whl
-sdss-marvin
 matplotlib
+numpy
+tqdm
+pandas
+Pillow
+urllib3==1.26.6
+pyyaml
+astropy astroquery

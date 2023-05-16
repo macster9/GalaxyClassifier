@@ -1,0 +1,5 @@
+directories:
+  images: "data/images/"
+  pickle_file_name: "data/images_tensor.pkl"
+  gal_zoo: "data/GalaxyZoo1_DR_table2.csv.gz"
+  ref_table: "data/gz2_filename_mapping.csv"
