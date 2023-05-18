@@ -8,3 +8,5 @@ Pillow
 urllib3==1.26.6
 pyyaml
 astropy astroquery
+scikit-image
+torchsummary
