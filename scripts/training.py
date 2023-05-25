@@ -29,7 +29,7 @@ def train(learning_rate, epochs):
     model = CNN().to(device)
     loss_func = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    summary(model, input_size=(3, 50, 50))
+    summary(model, input_size=(3, 424, 424))
     labels_table = read.labels()
 
     training_loss = []
@@ -60,8 +60,9 @@ def train(learning_rate, epochs):
             if label[0].item() == int(0):
                 if np.random.random() > 0.33:
                     continue
-            compressed_image = process_image(gal_tools.load_image(os.path.join(train_dir, img)))
-            model_input = torch.tensor(compressed_image).unsqueeze(0).float().to(device)
+            model_input = torch.tensor(
+                gal_tools.load_image(os.path.join(train_dir, img)).T
+            ).unsqueeze(0).float().to(device)
 
             output = model(model_input)
             loss = loss_func(output, label)
@@ -81,8 +82,9 @@ def train(learning_rate, epochs):
                 continue
             obj = labels_table.loc[labels_table["IMG_ID"] == int(img[:-4])]
             label = [[float(obj["SPIRAL"]), float(obj["ELLIPTICAL"]), float(obj["UNCERTAIN"])].index(1.)]
-            compressed_image = process_image(gal_tools.load_image(os.path.join(valid_dir, img)))
-            model_input = torch.tensor(compressed_image).unsqueeze(0).float().to(device)
+            model_input = torch.tensor(
+                gal_tools.load_image(os.path.join(valid_dir, img)).T
+            ).unsqueeze(0).float().to(device)
 
             with torch.no_grad():
                 output = model(model_input)
@@ -118,8 +120,7 @@ def train(learning_rate, epochs):
             continue
         obj = labels_table.loc[labels_table["IMG_ID"] == int(img[:-4])]
         label = [[float(obj["SPIRAL"]), float(obj["ELLIPTICAL"]), float(obj["UNCERTAIN"])].index(1.)]
-        compressed_image = process_image(gal_tools.load_image(os.path.join(test_dir, img)))
-        model_input = torch.tensor(compressed_image).unsqueeze(0).float().to(device)
+        model_input = torch.tensor(gal_tools.load_image(os.path.join(test_dir, img)).T).unsqueeze(0).float().to(device)
 
         with torch.no_grad():
             output = model(model_input)
