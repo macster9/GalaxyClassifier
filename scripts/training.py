@@ -54,12 +54,6 @@ def train(learning_rate, epochs):
             label = torch.tensor([
                 [float(obj["SPIRAL"]), float(obj["ELLIPTICAL"]), float(obj["UNCERTAIN"])].index(1.)
             ]).to(device)
-            if label[0].item() == int(2):
-                if np.random.random() > 0.33:
-                    continue
-            if label[0].item() == int(0):
-                if np.random.random() > 0.33:
-                    continue
             model_input = torch.tensor(
                 gal_tools.load_image(os.path.join(train_dir, img)).T
             ).unsqueeze(0).float().to(device)
