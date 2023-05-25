@@ -1,20 +1,25 @@
 import tools.utils as gal_tools
 import yaml
 import torch
-import skimage.measure
+import skimage
+from tools import read
+from skimage.measure import block_reduce
 from tqdm import tqdm
 import numpy as np
 import pickle
 import os
 import pandas as pd
 import shutil
+import matplotlib.pyplot as plt
 
 
 def save_labels():
-    ref_table = gal_tools.read_reference_table()
-    gz_table = gal_tools.read_gz_table()
-    merged_table = pd.merge(ref_table, gz_table, left_index=True, right_index=True)
-    merged_table.to_csv("data/labels.csv")
+    ref_table = read.reference_table()
+    gz_table = read.gz2_table2()
+    meta_table = read.gz2_metadata_table()
+    merged_tables = pd.merge(ref_table, gz_table, left_index=True, right_index=True)
+    merged_meta = pd.merge(merged_tables, meta_table, left_index=True, right_index=True)
+    merged_meta.to_csv("data/labels.csv")
     return None
 
 
@@ -56,3 +61,8 @@ def split_datasets():
             shutil.move(os.path.join(image_dir, img), os.path.join(valid_dir, img))
     print("Dataset Split Complete.")
     return None
+
+
+def process_image(img):
+    cropped_image = block_reduce(img[108:315, 108:315], (4, 4, 1), np.max).T
+    return cropped_image

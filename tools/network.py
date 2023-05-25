@@ -7,13 +7,13 @@ class CNN(nn.Module):
         super(CNN, self).__init__()
 
         self.conv_1 = self.conv_layer_(3, 16, 3)
-        self.max_pool1 = nn.MaxPool2d(4, 4)
+        self.max_pool1 = nn.MaxPool2d(3, 3)
         self.conv_2 = self.conv_layer_(16, 32, 3)
-        self.max_pool2 = nn.MaxPool2d(4, 4)
+        self.max_pool2 = nn.MaxPool2d(3, 3)
         self.flatten = nn.Flatten()
-        self.linear1 = nn.Linear(1152, 256)
-        self.linear2 = nn.Linear(256, 64)
-        self.output = nn.Linear(64, 3)
+        self.linear1 = nn.Linear(512, 128)
+        self.linear2 = nn.Linear(128, 32)
+        self.output = nn.Linear(32, 3)
 
     @staticmethod
     def conv_layer_(in_c, out_c, kernel):
@@ -28,4 +28,4 @@ class CNN(nn.Module):
         out = self.flatten(out)
         out = functional.relu(self.linear1(out))
         out = functional.relu(self.linear2(out))
-        return functional.relu(self.output(out))
+        return functional.softmax(self.output(out), dim=1)

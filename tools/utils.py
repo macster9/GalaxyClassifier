@@ -7,37 +7,8 @@ import matplotlib.pyplot as plt
 import _pickle as pickle
 import PIL.Image as Image
 import gc
-import skimage.measure
+from sklearn import metrics
 from tqdm import tqdm
-
-
-def read_labels():
-    with open(open_config()["directories"]["labels"], "r") as file:
-        labels = pd.read_csv(file)
-    return labels
-
-
-def read_reference_table():
-    ref_table_dir = open_config()["directories"]["ref_table"]
-    ref_table = pd.read_csv(ref_table_dir)
-    obj_id = np.array(ref_table["objid"])
-    sample = np.array(ref_table["sample"])
-    img_id = np.array(ref_table["asset_id"])
-    return pd.DataFrame(np.array((sample, img_id)).T, columns=["SAMPLE", "IMG_ID"], index=obj_id)
-
-
-def read_gz_table():
-    gz_table_dir = open_config()["directories"]["gal_zoo"]
-    gz_table = pd.read_csv(gz_table_dir)
-    obj_id = gz_table["OBJID"]
-    spiral = gz_table["SPIRAL"]
-    elliptical = gz_table["ELLIPTICAL"]
-    dk = gz_table["UNCERTAIN"]
-    return pd.DataFrame(
-        np.array((spiral, elliptical, dk)).T,
-        columns=["SPIRAL", "ELLIPTICAL", "UNCERTAIN"],
-        index=obj_id
-    )
 
 
 def load_image(img_file):
@@ -56,3 +27,20 @@ def open_config():
     with open("config.yml", "r") as file:
         contents = yaml.safe_load(file)
     return contents
+
+
+def plot(populated, actual, predicted, ax1, ax2, training_loss, validation_loss):
+    conf_matrix = metrics.confusion_matrix(actual, predicted)
+    cm_display = metrics.ConfusionMatrixDisplay(conf_matrix,
+                                                display_labels=["SPIRAL", "ELLIPTICAL", "UNCERTAIN"])
+    ax1.clear()
+    cm_display.plot(ax=ax1, colorbar=False)
+    ax1.title.set_text("Confusion Matrix")
+    ax2.plot(training_loss, c="tab:blue", label="Training")
+    ax2.plot(validation_loss, c="tab:orange", label="Validation")
+    ax2.title.set_text("Loss Curve")
+    plt.suptitle("Learning Metrics", fontsize=16)
+    if not populated:
+        ax2.legend()
+    plt.pause(1)
+    return None

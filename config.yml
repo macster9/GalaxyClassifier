@@ -1,7 +1,10 @@
 directories:
-  gal_zoo: "data/GalaxyZoo1_DR_table2.csv.gz"
+  model: "models/"
+  gal_zoo2_table2: "data/GalaxyZoo1_DR_table2.csv.gz"
+  gal_zoo2_metadata_table: "data/gz2sample.csv.gz"
   ref_table: "data/gz2_filename_mapping.csv"
   labels: "data/labels.csv"
+  errors: "data/errors.txt"
   images: "data/images/"
   train_dir: "data/train"
   test_dir: "data/test"
