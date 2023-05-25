@@ -66,6 +66,8 @@ def split_datasets():
     return None
 
 
-def process_image(img):
-    cropped_image = block_reduce(img[108:315, 108:315], (4, 4, 1), np.max).T
-    return cropped_image
+def process_image(image):
+    # image = np.where(image <= 3 * np.std(image), 0, image)
+    # image = (image - np.min(image)) / (np.max(image) - np.min(image))
+    image = block_reduce(image[108:315, 108:315], (4, 4, 1), np.max).T
+    return image
