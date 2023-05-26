@@ -12,14 +12,17 @@ def learning_metrics(populated, actual, predicted, ax1, ax2, training_loss, vali
     ax1.clear()
     cm_display.plot(ax=ax1, colorbar=False)
     ax1.title.set_text("Confusion Matrix")
-    ax2.plot(training_loss, c="tab:blue", label="Training")
-    ax2.plot(validation_loss, c="tab:orange", label="Validation")
     ax2.title.set_text("Loss Curve")
     ax2.set_xlabel("Epochs")
     ax2.set_ylabel("Loss")
     plt.suptitle("Learning Metrics", fontsize=16)
     if not populated:
+        ax2.plot(training_loss, c="tab:blue", label="Training")
+        ax2.plot(validation_loss, c="tab:orange", label="Validation")
         ax2.legend()
+    else:
+        ax2.plot(training_loss, c="tab:blue")
+        ax2.plot(validation_loss, c="tab:orange")
     plt.pause(1)
     return None
 

@@ -48,7 +48,7 @@ def train(learning_rate, epochs):
         print(f"Epoch {epoch + 1}:")
         epoch_loss = 0
         model.train()
-        for img in tqdm(train_list[0:200], desc="Training: ", colour="GREEN"):
+        for img in tqdm(train_list[0:2000], desc="Training: ", colour="GREEN"):
 
             if img[:-4] in errors_list:
                 continue
@@ -81,7 +81,7 @@ def train(learning_rate, epochs):
 
         predicted = []
         actual = []
-        for img in tqdm(valid_list[0:66], desc="Validation: ", colour="CYAN"):
+        for img in tqdm(valid_list[0:660], desc="Validation: ", colour="CYAN"):
             if img[:-4] in errors_list:
                 continue
             obj = labels_table.loc[labels_table["IMG_ID"] == int(img[:-4])]
@@ -119,7 +119,7 @@ def train(learning_rate, epochs):
     predicted = []
     actual = []
     test_loss = 0
-    for img in tqdm(test_list[0:66], desc="Testing: ", colour="RED"):
+    for img in tqdm(test_list[0:660], desc="Testing: ", colour="RED"):
         if img[:-4] in errors_list:
             continue
         obj = labels_table.loc[labels_table["IMG_ID"] == int(img[:-4])]
