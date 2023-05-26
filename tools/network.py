@@ -1,4 +1,4 @@
-from torch import nn, cat, LongTensor
+from torch import nn, cat
 from torch.nn import functional
 
 

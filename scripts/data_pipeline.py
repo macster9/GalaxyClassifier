@@ -67,7 +67,8 @@ def split_datasets():
 
 
 def process_image(image):
-    # image = np.where(image <= 3 * np.std(image), 0, image)
-    # image = (image - np.min(image)) / (np.max(image) - np.min(image))
+    image = np.where(image <= 3 * np.std(image), -1000, image)
+    image = (image - np.min(abs(image))) / (np.max(image) - np.min(abs(image)))
+    image = np.where(image <= 0, 0, image)
     image = block_reduce(image[108:315, 108:315], (4, 4, 1), np.max).T
     return image

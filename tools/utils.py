@@ -1,7 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import PIL.Image as Image
-from tools import read, utils
+from tools import read
+import scripts.data_pipeline as dp
 import os
 
 
@@ -10,11 +11,16 @@ def load_image(img_file):
 
 
 def image_analysis():
+    fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(12, 6))
     contents = read.config()
     train_dir = contents["directories"]["train_dir"]
     img_list = os.listdir(train_dir)
-    image = utils.load_image(os.path.join(train_dir, img_list[2]))
-    utils.image_analysis(image)
+    image = load_image(os.path.join(train_dir, img_list[5]))
+    ax1.imshow(image)
+    image = dp.process_image(image).T
+    ax2.imshow(image)
+    plt.show()
+    exit()
     # new_image = np.reshape(image, (424*424, 3))
     # r, g, b = new_image.T
     # x = []

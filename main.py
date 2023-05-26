@@ -13,8 +13,10 @@ from scripts import training
 
 
 if __name__ == "__main__":
-    training.train(learning_rate=0.0001, epochs=50)
+    training.train(learning_rate=0.0001, epochs=3)
     # dp.save_labels()
+    # utils.image_analysis()
+    # read.gz2_metadata_table()
 
 
     # print(read.labels())

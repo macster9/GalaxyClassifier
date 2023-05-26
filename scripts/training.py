@@ -27,7 +27,14 @@ def train(learning_rate, epochs):
     model = CNN().to(device)
     loss_func = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
-    # summary(model, input_size=(3, 50, 50))
+
+    # bare in mind here you will need to edit line 60 of torchsummary.torchsummary.py to show:
+    # x = [torch.rand(batch_size, *in_size).type(dtype) for in_size in input_size]
+    # https://github.com/sksq96/pytorch-summary/issues/168
+    # and line 100 to show:
+    # total_input_size = abs(np.prod(sum(input_size, ())) * batch_size * 4. / (1024 ** 2.))
+    # https: // github.com / sksq96 / pytorch - summary / issues / 90
+    summary(model, input_size=[(3, 52, 52), tuple([1])], batch_size=1)
     labels_table = read.labels()
 
     training_loss = []
@@ -41,7 +48,7 @@ def train(learning_rate, epochs):
         print(f"Epoch {epoch + 1}:")
         epoch_loss = 0
         model.train()
-        for img in tqdm(train_list[0:2000], desc="Training: ", colour="GREEN"):
+        for img in tqdm(train_list[0:200], desc="Training: ", colour="GREEN"):
 
             if img[:-4] in errors_list:
                 continue
@@ -61,7 +68,6 @@ def train(learning_rate, epochs):
             extinction = torch.tensor(np.float32(obj["EXTINCTION"].to_numpy())).unsqueeze(0).to(device)
             compressed_image = process_image(utils.load_image(os.path.join(train_dir, img)))
             model_input = torch.tensor(compressed_image).unsqueeze(0).float().to(device)
-
             output = model(model_input, extinction)
             loss = loss_func(output, label)
             epoch_loss += loss.item()
@@ -75,7 +81,7 @@ def train(learning_rate, epochs):
 
         predicted = []
         actual = []
-        for img in tqdm(valid_list[0:660], desc="Validation: ", colour="CYAN"):
+        for img in tqdm(valid_list[0:66], desc="Validation: ", colour="CYAN"):
             if img[:-4] in errors_list:
                 continue
             obj = labels_table.loc[labels_table["IMG_ID"] == int(img[:-4])]
@@ -112,7 +118,8 @@ def train(learning_rate, epochs):
 
     predicted = []
     actual = []
-    for img in tqdm(test_list[0:660], desc="Testing: ", colour="RED"):
+    test_loss = 0
+    for img in tqdm(test_list[0:66], desc="Testing: ", colour="RED"):
         if img[:-4] in errors_list:
             continue
         obj = labels_table.loc[labels_table["IMG_ID"] == int(img[:-4])]
@@ -127,5 +134,15 @@ def train(learning_rate, epochs):
         predicted.append(output.detach().cpu().numpy().argmax())
         actual.append(label[0])
 
+    plot.learning_metrics(populated=True,
+                          actual=actual,
+                          predicted=predicted,
+                          ax1=ax1,
+                          ax2=ax2,
+                          training_loss=training_loss, validation_loss=validation_loss
+                          )
+    ax2.get_legend().remove()
+    ax2.scatter(epochs-1, test_loss.item(), color="black", label="Testing")
+    ax2.legend()
     plt.savefig(os.path.join(model_path, "learning_metrics.png"))
     print(f"Model ID: {model_path[13:]}")

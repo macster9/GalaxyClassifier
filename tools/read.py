@@ -41,6 +41,8 @@ def gz2_table2():
 def gz2_metadata_table():
     meta_table_dir = config()["directories"]["gal_zoo2_metadata_table"]
     metadata = pd.read_csv(meta_table_dir)
+    for col in metadata.columns:
+        print(col)
     object_id = metadata["OBJID"]
     eg = metadata["EXTINCTION_G"]
     er = metadata["EXTINCTION_R"]
