@@ -13,10 +13,11 @@ from scripts import training
 
 
 if __name__ == "__main__":
-    training.train(learning_rate=0.0001, epochs=50)
+    training.train(learning_rate=0.0001, epochs=3)
+    # df = read.labels()
+    # print(df)
+    # exit()
+    # print(df.loc[df["IMG_ID"] == int(205772)])
+    # labels_table.loc[labels_table["IMG_ID"] == int(img[:-4])]
+    # read.reference_table()
     # dp.save_labels()
-    # utils.image_analysis()
-    # read.gz2_metadata_table()
-
-
-    # print(read.labels())

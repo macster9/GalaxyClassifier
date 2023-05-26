@@ -5,10 +5,12 @@ from sklearn import metrics
 from tools import read, utils
 
 
-def learning_metrics(populated, actual, predicted, ax1, ax2, training_loss, validation_loss):
-    conf_matrix = metrics.confusion_matrix(actual, predicted)
-    cm_display = metrics.ConfusionMatrixDisplay(conf_matrix,
-                                                display_labels=["SPIRAL", "ELLIPTICAL", "UNCERTAIN"])
+def learning_metrics(populated, actual, predicted, ax1, ax2, training_loss, validation_loss, display_labels):
+    conf_matrix = metrics.multilabel_confusion_matrix(actual, predicted, labels=display_labels)
+    print(metrics.classification_report(actual, predicted, output_dict=False, target_names=display_labels))
+    # todo classification_report _classification line 545 - labels a mix of strings and floats?
+    exit()
+    cm_display = metrics.ConfusionMatrixDisplay(conf_matrix, display_labels=display_labels)
     ax1.clear()
     cm_display.plot(ax=ax1, colorbar=False)
     ax1.title.set_text("Confusion Matrix")
@@ -31,7 +33,6 @@ def example_image(x, y, lookup_table):
     img_dir = read.config()["directories"]["test_dir"]
     fig, axs = plt.subplots(x, y, figsize=(10, 10))
     img_list = os.listdir(img_dir)
-    # np.random.shuffle(img_list)
     for i in range(y):
         for j in range(x):
             rand_image = np.random.choice(img_list)

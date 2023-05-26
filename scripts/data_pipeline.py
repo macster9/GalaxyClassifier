@@ -15,7 +15,7 @@ def run():
 
 def save_labels():
     ref_table = read.reference_table()
-    gz_table = read.gz2_table2()
+    gz_table = read.gz2_table5()
     meta_table = read.gz2_metadata_table()
     merged_tables = pd.merge(ref_table, gz_table, left_index=True, right_index=True)
     merged_meta = pd.merge(

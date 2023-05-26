@@ -25,7 +25,7 @@ def train(learning_rate, epochs):
 
     device = ["cuda:0" if torch.cuda.is_available() else "cpu"][0]
     model = CNN().to(device)
-    loss_func = torch.nn.CrossEntropyLoss()
+    loss_func = torch.nn.BCELoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
     # bare in mind here you will need to edit line 60 of torchsummary.torchsummary.py to show:
@@ -34,8 +34,11 @@ def train(learning_rate, epochs):
     # and line 100 to show:
     # total_input_size = abs(np.prod(sum(input_size, ())) * batch_size * 4. / (1024 ** 2.))
     # https: // github.com / sksq96 / pytorch - summary / issues / 90
-    summary(model, input_size=[(3, 52, 52), tuple([1])], batch_size=1)
+
+    # summary(model, input_size=[(3, 52, 52), tuple([1])], batch_size=1)
+
     labels_table = read.labels()
+    label_headers = labels_table.columns[3:-1]
 
     training_loss = []
     validation_loss = []
@@ -48,7 +51,7 @@ def train(learning_rate, epochs):
         print(f"Epoch {epoch + 1}:")
         epoch_loss = 0
         model.train()
-        for img in tqdm(train_list[0:2000], desc="Training: ", colour="GREEN"):
+        for img in tqdm(train_list[0:200], desc="Training: ", colour="GREEN"):
 
             if img[:-4] in errors_list:
                 continue
@@ -57,14 +60,8 @@ def train(learning_rate, epochs):
 
             obj = labels_table.loc[labels_table["IMG_ID"] == int(img[:-4])]
             label = torch.tensor([
-                [float(obj["SPIRAL"]), float(obj["ELLIPTICAL"]), float(obj["UNCERTAIN"])].index(1.)
-            ]).to(device)
-            if label[0].item() == int(2):
-                if np.random.random() > 0.33:
-                    continue
-            if label[0].item() == int(0):
-                if np.random.random() > 0.33:
-                    continue
+                np.float32(round(float(obj[heading]))) for heading in label_headers
+            ]).unsqueeze(0).to(device)
             extinction = torch.tensor(np.float32(obj["EXTINCTION"].to_numpy())).unsqueeze(0).to(device)
             compressed_image = process_image(utils.load_image(os.path.join(train_dir, img)))
             model_input = torch.tensor(compressed_image).unsqueeze(0).float().to(device)
@@ -81,21 +78,24 @@ def train(learning_rate, epochs):
 
         predicted = []
         actual = []
-        for img in tqdm(valid_list[0:660], desc="Validation: ", colour="CYAN"):
+        for img in tqdm(valid_list[0:66], desc="Validation: ", colour="CYAN"):
             if img[:-4] in errors_list:
                 continue
             obj = labels_table.loc[labels_table["IMG_ID"] == int(img[:-4])]
-            label = [[float(obj["SPIRAL"]), float(obj["ELLIPTICAL"]), float(obj["UNCERTAIN"])].index(1.)]
+            label = torch.tensor([np.float32(round(float(obj[heading]))) for heading in label_headers]).unsqueeze(0).to(device)
             extinction = torch.tensor(np.float32(obj["EXTINCTION"].to_numpy())).unsqueeze(0).to(device)
             compressed_image = process_image(utils.load_image(os.path.join(valid_dir, img)))
             model_input = torch.tensor(compressed_image).unsqueeze(0).float().to(device)
 
             with torch.no_grad():
                 output = model(model_input, extinction)
-            loss = loss_func(output, torch.tensor(label).to(device))
+            loss = loss_func(output, label)
             epoch_loss += loss.cpu().item()
-            predicted.append(output.detach().cpu().numpy().argmax())
-            actual.append(label[0])
+            predicted.append(np.rint(output.detach().cpu().numpy()))
+            actual.append(label[0].detach().cpu().numpy())
+
+        actual = np.array(actual)
+        predicted = np.array(predicted)[:, 0, :]
 
         if not ax2.lines:
             plot.learning_metrics(populated=False,
@@ -104,7 +104,8 @@ def train(learning_rate, epochs):
                                   ax1=ax1,
                                   ax2=ax2,
                                   training_loss=training_loss,
-                                  validation_loss=validation_loss
+                                  validation_loss=validation_loss,
+                                  display_labels=label_headers
                                   )
         else:
             plot.learning_metrics(populated=True,
@@ -112,18 +113,20 @@ def train(learning_rate, epochs):
                                   predicted=predicted,
                                   ax1=ax1,
                                   ax2=ax2,
-                                  training_loss=training_loss,validation_loss=validation_loss
+                                  training_loss=training_loss,
+                                  validation_loss=validation_loss,
+                                  display_labels=label_headers
                                   )
         validation_loss.append(epoch_loss)
 
     predicted = []
     actual = []
     test_loss = 0
-    for img in tqdm(test_list[0:660], desc="Testing: ", colour="RED"):
+    for img in tqdm(test_list[0:66], desc="Testing: ", colour="RED"):
         if img[:-4] in errors_list:
             continue
         obj = labels_table.loc[labels_table["IMG_ID"] == int(img[:-4])]
-        label = [[float(obj["SPIRAL"]), float(obj["ELLIPTICAL"]), float(obj["UNCERTAIN"])].index(1.)]
+        label = torch.tensor([np.float32(round(float(obj[heading]))) for heading in label_headers]).unsqueeze(0).to(device)
         compressed_image = process_image(utils.load_image(os.path.join(test_dir, img)))
         extinction = torch.tensor(np.float32(obj["EXTINCTION"].to_numpy())).unsqueeze(0).to(device)
         model_input = torch.tensor(compressed_image).unsqueeze(0).float().to(device)
@@ -131,15 +134,19 @@ def train(learning_rate, epochs):
         with torch.no_grad():
             output = model(model_input, extinction)
         test_loss = loss_func(output, torch.tensor(label).to(device))
-        predicted.append(output.detach().cpu().numpy().argmax())
-        actual.append(label[0])
+        predicted.append(np.rint(output.detach().cpu().numpy()))
+        actual.append(label[0].detach().cpu().numpy())
+    actual = np.array(actual)
+    predicted = np.array(predicted)[:, 0, :]
 
     plot.learning_metrics(populated=True,
                           actual=actual,
                           predicted=predicted,
                           ax1=ax1,
                           ax2=ax2,
-                          training_loss=training_loss, validation_loss=validation_loss
+                          training_loss=training_loss,
+                          validation_loss=validation_loss,
+                          display_labels=label_headers
                           )
     ax2.get_legend().remove()
     ax2.scatter(epochs-1, test_loss.item(), color="black", label="Testing")

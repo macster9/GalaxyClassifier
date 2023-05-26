@@ -11,9 +11,9 @@ class CNN(nn.Module):
         self.conv_2 = self.conv_layer_(16, 32, 3)
         self.max_pool2 = nn.MaxPool2d(3, 3)
         self.flatten = nn.Flatten()
-        self.linear1 = nn.Linear(513, 128)
-        self.linear2 = nn.Linear(128, 32)
-        self.output = nn.Linear(32, 3)
+        self.linear1 = nn.Linear(513, 256)
+        self.linear2 = nn.Linear(256, 128)
+        self.output = nn.Linear(128, 37)
 
     @staticmethod
     def conv_layer_(in_c, out_c, kernel):
