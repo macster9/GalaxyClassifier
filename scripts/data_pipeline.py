@@ -1,16 +1,16 @@
-import tools.utils as gal_tools
-import yaml
-import torch
-import skimage
-from tools import read
+from tools import read, plot
 from skimage.measure import block_reduce
 from tqdm import tqdm
 import numpy as np
-import pickle
 import os
 import pandas as pd
 import shutil
-import matplotlib.pyplot as plt
+
+
+def run():
+    labels_table = read.labels()
+    plot.example_image(5, 5, labels_table)
+    return None
 
 
 def save_labels():
@@ -18,8 +18,11 @@ def save_labels():
     gz_table = read.gz2_table2()
     meta_table = read.gz2_metadata_table()
     merged_tables = pd.merge(ref_table, gz_table, left_index=True, right_index=True)
-    merged_meta = pd.merge(merged_tables, meta_table, left_index=True, right_index=True)
+    merged_meta = pd.merge(
+        merged_tables, meta_table, left_index=True, right_index=True
+    ).rename({0: "EXTINCTION"}, axis=1)
     merged_meta.to_csv("data/labels.csv")
+    print("Saved Label Lookup Table.")
     return None
 
 
@@ -28,7 +31,7 @@ def split_datasets():
     np.random.seed(100)
 
     # get config info
-    contents = gal_tools.open_config()
+    contents = read.config()
     image_dir, train_dir, test_dir, valid_dir = [
         contents["directories"][x] for x in list(contents["directories"].keys())[-4:]
     ]
@@ -63,6 +66,9 @@ def split_datasets():
     return None
 
 
-def process_image(img):
-    cropped_image = block_reduce(img[108:315, 108:315], (4, 4, 1), np.max).T
-    return cropped_image
+def process_image(image):
+    image = np.where(image <= 3 * np.std(image), -1000, image)
+    image = (image - np.min(abs(image))) / (np.max(image) - np.min(abs(image)))
+    image = np.where(image <= 0, 0, image)
+    image = block_reduce(image[108:315, 108:315], (4, 4, 1), np.max).T
+    return image
