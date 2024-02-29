@@ -6,7 +6,7 @@ from tools.network import CNN
 from torchsummary import summary
 import numpy as np
 import os
-from tqdm import tqdm, trange
+from tqdm.auto import tqdm, trange
 import matplotlib.pyplot as plt
 
 
@@ -34,7 +34,7 @@ def train(learning_rate, epochs):
     # and line 100 to show:
     # total_input_size = abs(np.prod(sum(input_size, ())) * batch_size * 4. / (1024 ** 2.))
     # https: // github.com / sksq96 / pytorch - summary / issues / 90
-    summary(model, input_size=[(3, 52, 52), tuple([1])], batch_size=1)
+    # summary(model, input_size=[(3, 52, 52), tuple([1])], batch_size=1)
     labels_table = read.labels()
 
     training_loss = []

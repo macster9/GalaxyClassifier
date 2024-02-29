@@ -37,8 +37,9 @@ def example_image(x, y, lookup_table):
             rand_image = np.random.choice(img_list)
             obj = lookup_table.loc[lookup_table["IMG_ID"] == int(rand_image[:-4])]
             for name in obj.columns:
-                if obj[name].item() == 1:
-                    axs[i, j].set_title(name, fontsize=10)
+                if isinstance(obj[name], int):
+                    if obj[name].item() == 1:
+                        axs[i, j].set_title(name, fontsize=10)
             image = utils.load_image(os.path.join(img_dir, rand_image))
             axs[i, j].imshow(image)
             axs[i, j].label_outer()

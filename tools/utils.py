@@ -20,7 +20,7 @@ def image_analysis():
     image = dp.process_image(image).T
     ax2.imshow(image)
     plt.show()
-    exit()
+    # exit()
     # new_image = np.reshape(image, (424*424, 3))
     # r, g, b = new_image.T
     # x = []

@@ -1,6 +1,6 @@
 from tools import read, plot
 from skimage.measure import block_reduce
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import numpy as np
 import os
 import pandas as pd
